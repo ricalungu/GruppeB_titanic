@@ -1,0 +1,54 @@
+# Titel: Funktionen
+# Autor: Sebastian
+# Beschreibung: Deskriptive Statistik für kategoriale Variablen ii)
+
+# Datensatz laden
+
+titanic_data <- read.csv("data/titanic.csv", sep = ",")
+
+#' Deskriptive Statistik für eine kategoriale Variable
+#'
+#' @param df data.frame mit den Quelldaten
+#' @param var String: Name der kategorialen Variable
+#' @return list: Enthaelt Variable, Haeufigkeiten, Proportionen und Modus
+
+descrip_categorical <- function(df, var) {
+
+  # Validierung der Eingaben: Sicherstellen, dass die Argumente korrekt sind
+  if (!is.data.frame(df)) stop("Argument 'df' muss ein data.frame sein.")
+  if (!var %in% names(df)) stop("Variable nicht im data.frame gefunden: ", var)
+
+  # Extrahieren der Spalte
+  x <- df[[var]]
+  
+  # Einheitliche Umwandlung in Faktor um korrekte Tabellen auch fuer logische-Werte und Text-Werte zu bekommen
+  if (!is.factor(x)) {
+    x <- as.factor(x)
+  }
+  
+  # Statistische Berechnungen
+  # Durch useNA = "ifany" werden fehlende Werte nicht ignoriert 
+  freq <- table(x, useNA = "ifany")
+  prop <- prop.table(freq)
+  
+  # Modus-Berechnung identifiziert Werte mit der höchsten Frequenz 
+  max_count <- max(freq, na.rm = TRUE)
+  modes <- names(freq)[which(freq == max_count)]
+  
+  # Rückgabe als strukturierte Liste mit einer eigenen Klasse 
+  structure(
+    list(
+      variable = var,
+      frequencies = freq,
+      proportions = prop,
+      modes = modes
+    ),
+    class = "desc_cat" # Optional: Eigene Klasse für optisch bessere Print-Ausgaben
+  )
+}
+
+# Funktionalitätstest mit der Geschlechts-Variable "Sex"
+ergebnis <- descrip_categorical(df = titanic_data, var = "Sex")
+
+# Ausgabe des Ergebnisses
+print(ergebnis)
