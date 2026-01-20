@@ -11,8 +11,12 @@ df <- read.csv("data/raw/titanic.csv", stringsAsFactors = FALSE)
 str(df)
 summary(df)
 
-library(dplyr)
-library(stringr)
+## install required packages if necessary 
+#install.packages(c("tidyr","dplyr","stringr"))
+
+library("tidyr")
+library("dplyr")
+library("stringr")
 
 # Title/Anrede aus Name extrahieren
 df <- df %>%
@@ -32,7 +36,6 @@ df <- df %>%
     Embarked = factor(Embarked)
   )
 
-
 # Age-Imputation (Median je Title)
 df <- df %>%
   group_by(Title) %>%
@@ -42,18 +45,9 @@ df <- df %>%
 # Fallback, falls noch NA übrig sind
 df$Age[is.na(df$Age)] <- median(df$Age, na.rm = TRUE)
 
-# Final speichern
-dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
-write.csv(df, "data/processed/titanic_with_title_age.csv", row.names = FALSE)
+
+### second part of the code refers to titanic_modified
 titanic_modified <- df
-
-
-## install required packages if necessary 
-#install.packages(c("tidyr","dplyr","stringr"))
-
-library("tidyr")
-library("dplyr")
-library("stringr")
 
 ###################### recode Pclass as ordered factor ######################
 
@@ -186,7 +180,7 @@ titanic_modified <- titanic_modified %>%
 ##############################################################################
 
 # remove columns which are not needed for following analysis
-titanic_modified <- titanic_modified %>% select(-c(PassengerId, Name, Cabin))
+titanic_modified <- titanic_modified %>% select(-c(PassengerId, Name, Cabin, Ticket))
 
-# save modified dataset
+# save modified dataset in one file
 write.csv(titanic_modified, file = "data/processed/titanic_modified.csv")
