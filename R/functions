@@ -3,11 +3,9 @@
 # Beschreibung: Deskriptive Statistik für kategoriale Variablen ii)
 
 # Datensatz laden
-
-titanic_data <- read.csv("data/titanic.csv", sep = ",")
+titanic_data <- read.csv("data/processed/titanic_modified.csv", sep = ",")
 
 #' Deskriptive Statistik für eine kategoriale Variable
-#'
 #' @param df data.frame mit den Quelldaten
 #' @param var String: Name der kategorialen Variable
 #' @return list: Enthaelt Variable, Haeufigkeiten, Proportionen und Modus
@@ -47,8 +45,87 @@ descrip_categorical <- function(df, var) {
   )
 }
 
-# Funktionalitätstest mit der Geschlechts-Variable "Sex"
+# Funktionalitaetstest mit der Geschlechts-Variable "Sex"
 ergebnis <- descrip_categorical(df = titanic_data, var = "Sex")
 
 # Ausgabe des Ergebnisses
 print(ergebnis)
+
+
+# Deskriptive bivariate Statistik für den Zusammenhang von zwei kategorialen Variablen iii)
+
+# Datensatz laden
+titanic_data <- read.csv("data/processed/titanic_modified.csv", sep = ",")
+
+#' @param df Ein data.frame, der die Rohdaten enthält
+#' @param var1 String. Name der ersten kategorialen Variable (Zeilen)
+#' @param var2 String. Name der zweiten kategorialen Variable (Spalten)
+#' @return Eine Liste mit der Kreuztabelle, den relativen Häufigkeiten, 
+#' dem Testergebnis und dem Koeffizienten Cramer's V.
+#' @export
+bivar_cat_cat <- function(df, var1, var2) {
+
+# Valiedirung: Daten auf existenz pruefen
+if (!all(c(var1, var2) %in% names(df))) {
+    stop("Fehler: Eine oder beide Variablen wurden im data.frame nicht gefunden.")
+  }
+
+# Daten extrahieren und umwandeln in Faktoren
+  x <- as.factor(df[[var1]])
+  y <- as.factor(df[[var2]])
+
+# Kontingenztabelle erstellen, Variablenamen werden durch dnn als Tabellenueberschricften gesetzt
+tbl <- table(x, y, useNA = "ifany", dnn = c(var1, var2))
+
+# Relative Haufigkeiten
+row_prop <- prop.table(tbl, 1) # Zeilenweise
+col_prop <- prop.table(tbl, 2) # Spaltenweise
+
+# Testverfahren: Falls die Tabellenstruktur für den Test ungeeignet ist, fängt tryCatch Fehler ab
+chi <- tryCatch(chisq.test(tbl), error = function(e) NULL)
+test_used <- "Kein Test möglich"
+test_result <- NULL
+
+if (!is.null(chi)) {
+  expected <- chi$expected
+
+# Voraussetzungen fuer Chi-Quadrat-Test pruefen (Erwartungswert >= 5)
+if(any(expected < 5)) {
+  # Auf Fishers Test ausweichen wei 2x2 Tabellen
+  if (all(dim(tbl) == c(2, 2))) {
+    test_used <- "Fishers Test"
+    test_result <- fisher.test(tbl)
+  } else {
+    test_used <- "Chi-Quadrat"
+    test_result <- chi
+  }
+} else {
+  test_used <- "Pearson Chi-Quadrat-Test"
+  test_result <- chi
+}
+}
+
+# Effektstäerke: Cramer´s V berechnen
+# Formel zur Berechnung: Wurzel aus (Chi-Quadrat / (n * min(r-1, c-1)))
+n <- sum(tbl)
+r <- nrow(tbl)
+c <- ncol(tbl)
+chi_stat <- if (!is.null(chi)) as.numeric(chi$statistic) else NA
+
+cramersV <- if (!is.na(chi_stat)) {
+  sqrt(chi_stat / (n * (min(r - 1, c - 1))))
+} else {
+  NA
+}
+
+# Ausgabe der Ergebnisse in strukturierter Liste
+list(
+  tabelle = tbl,
+  zeilen_anteile = row_prop,
+  spalten_anteile = col_prop,
+  angewandter_test = test_used,
+  test_details = test-result, 
+  cramers_v = cramersV
+  )
+}
+
