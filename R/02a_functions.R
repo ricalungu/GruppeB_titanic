@@ -1,3 +1,219 @@
+# include functions from file 02b_inner_functions.R
+source("02b_inner_functions.R")
+
+
+# Title: Descriptive statistics for numeric variables
+# Author: Meriam
+# Description:
+# Computes descriptive statistics for a numeric variable
+
+describe_numeric <- function(df, var) {
+  
+  # use helper function from 2b
+  if (!is_numeric_var(df, var)) {
+    stop("Variable must be numeric")
+  }
+  
+  x <- df[[var]]
+  
+  stats <- c(
+    mean   = mean(x, na.rm = TRUE),
+    median = median(x, na.rm = TRUE),
+    sd     = sd(x, na.rm = TRUE),
+    iqr    = safe_iqr(x),
+    min    = min(x, na.rm = TRUE),
+    max    = max(x, na.rm = TRUE)
+  )
+  
+  return(stats)
+}
+
+
+# Titel: Funktionen
+# Autor: Sebastian
+# Beschreibung: Deskriptive Statistik fuer kategoriale Variablen ii)
+
+#' Deskriptive Statistik fuer eine kategoriale Variable
+#' @param df data.frame mit den Quelldaten
+#' @param var String: Name der kategorialen Variable
+#' @return list: Enthaelt Variable, Haeufigkeiten, Proportionen und Modus
+
+descrip_categorical <- function(df, var) {
+  
+  # Validierung der Eingaben: Sicherstellen, dass die Argumente korrekt sind
+  if (!is.data.frame(df)) stop("Argument 'df' muss ein data.frame sein.")
+  if (!var %in% names(df)) stop("Variable nicht im data.frame gefunden: ", var)
+  
+  # Extrahieren der Spalte
+  x <- df[[var]]
+  
+  # Einheitliche Umwandlung in Faktor um korrekte Tabellen auch fuer logische-Werte und Text-Werte zu bekommen
+  if (!is.factor(x)) {
+    x <- as.factor(x)
+  }
+  
+  # Statistische Berechnungen
+  # Durch useNA = "ifany" werden fehlende Werte nicht ignoriert 
+  freq <- table(x, useNA = "ifany")
+  prop <- prop.table(freq)
+  
+  # Modus-Berechnung identifiziert Werte mit der hoechsten Frequenz 
+  max_count <- max(freq, na.rm = TRUE)
+  modes <- names(freq)[which(freq == max_count)]
+  
+  # Rueckgabe als strukturierte Liste mit einer eigenen Klasse 
+  structure(
+    list(
+      variable = var,
+      frequencies = freq,
+      proportions = prop,
+      modes = modes
+    ),
+    class = "desc_cat" # Optional: Eigene Klasse fuer optisch bessere Print-Ausgaben
+  )
+}
+
+
+# Deskriptive bivariate Statistik fuer den Zusammenhang von zwei kategorialen Variablen iii)
+
+#' @param df Ein data.frame, der die Rohdaten enthaelt
+#' @param var1 String. Name der ersten kategorialen Variable (Zeilen)
+#' @param var2 String. Name der zweiten kategorialen Variable (Spalten)
+#' @return Eine Liste mit der Kreuztabelle, den relativen Haeufigkeiten, 
+#' dem Testergebnis und dem Koeffizienten Cramer's V.
+#' @export
+bivar_cat_cat <- function(df, var1, var2) {
+  
+  # Valiedirung: Daten auf existenz pruefen
+  if (!all(c(var1, var2) %in% names(df))) {
+    stop("Fehler: Eine oder beide Variablen wurden im data.frame nicht gefunden.")
+  }
+  
+  # Daten extrahieren und umwandeln in Faktoren
+  x <- as.factor(df[[var1]])
+  y <- as.factor(df[[var2]])
+  
+  # Kontingenztabelle erstellen, Variablenamen werden durch dnn als Tabellenueberschriften gesetzt
+  tbl <- table(x, y, useNA = "ifany", dnn = c(var1, var2))
+  
+  # Relative Haufigkeiten
+  row_prop <- prop.table(tbl, 1) # Zeilenweise
+  col_prop <- prop.table(tbl, 2) # Spaltenweise
+  
+  # Testverfahren: Falls die Tabellenstruktur fuer den Test ungeeignet ist, faengt tryCatch Fehler ab
+  chi <- tryCatch(chisq.test(tbl), error = function(e) NULL)
+  test_used <- "Kein Test möglich"
+  test_result <- NULL
+  
+  if (!is.null(chi)) {
+    expected <- chi$expected
+    
+    # Voraussetzungen fuer Chi-Quadrat-Test pruefen (Erwartungswert >= 5)
+    if(any(expected < 5)) {
+      # Auf Fishers Test ausweichen wei 2x2 Tabellen
+      if (all(dim(tbl) == c(2, 2))) {
+        test_used <- "Fishers Test"
+        test_result <- fisher.test(tbl)
+      } else {
+        test_used <- "Chi-Quadrat"
+        test_result <- chi
+      }
+    } else {
+      test_used <- "Pearson Chi-Quadrat-Test"
+      test_result <- chi
+    }
+  }
+  
+  # Effektstaerke: Cramer´s V berechnen
+  # Formel zur Berechnung: Wurzel aus (Chi-Quadrat / (n * min(r-1, c-1)))
+  n <- sum(tbl)
+  r <- nrow(tbl)
+  c <- ncol(tbl)
+  chi_stat <- if (!is.null(chi)) as.numeric(chi$statistic) else NA
+  
+  cramersV <- if (!is.na(chi_stat)) {
+    sqrt(chi_stat / (n * (min(r - 1, c - 1))))
+  } else {
+    NA
+  }
+  
+  # Ausgabe der Ergebnisse in strukturierter Liste
+  list(
+    tabelle = tbl,
+    zeilen_anteile = row_prop,
+    spalten_anteile = col_prop,
+    angewandter_test = test_used,
+    test_details = test-result, 
+    cramers_v = cramersV
+  )
+}
+
+
+# Deskriptive Bivariate Statistik fuer eine numerische und eine dichotome Variable iv)
+
+
+#' Berechnung der Gruppenkennwerte, Durchfuehrung eines Welch-t Test, Ermittlung der Effektstaerke Cohen´s d
+#' @param df data.frame: Der Datensatz
+#' @param numvar String: Name der numerischen Variable (z. B. "Fare").
+#' @param binvar String: Name der dichotomen Gruppenvariable (z. B. "Survived")
+#' @return Eine Liste mit Deskriptivstatistiken pro Gruppe, t-Test-Ergebnissen und der Effektstaerke Cohen's d
+
+#' export
+bivar_num_bin <- function(df, numvar, binvar) {
+  
+  # Validierung: Existenz und Struktur pruefen
+  if (!all(c(numvar, binvar) %in% names(df))) {
+    stop("Fehler: Variablen im data.frame nicht gefunden.")
+  }
+  
+  # Daten extrahieren und bereinigen
+  x <- as.numeric(df[[numvar]])
+  g <- as.factor(df[[binvar]])
+  
+  # Auf genau zwei Auspraegungen pruefen
+  levels_g <- levels(g)
+  if (length(levels_g) != 2) {
+    stop("Die Gruppenvariable muss genau 2 Auspraegungen haben.")
+  }
+  
+  # Nur vollstaendige Faelle benutzen
+  is_complete <- complete.cases(x, g)
+  x <- x[is_complete]
+  g <- g[is_complete]
+  
+  # Pro Gruppe deskriptive Statistik, "tapply" statt "for" weil es effizienter ist
+  group_stats <- list(
+    n = tapply(x, g, length),
+    mean = tapply(x, g, mean),
+    sd = tapply(x, g, sd)
+  )
+  
+  # Anwendung des Welch-t Test (besonders robust gegen Varianzheterogenität)
+  t_res <- t.test(x ~ g)
+  
+  # Effektstarke: Cohen´s d
+  n1 <- group_stats$n[1]
+  n2 <- group_stats$n[2]
+  sd1 <- group_stats$sd[1]
+  sd2 <- group_stats$sd[2]
+  m1  <- group_stats$mean[1]
+  m2  <- group_stats$mean[2]
+  
+  # Gepoolte Standardabweichung berechnen
+  sd_pooled <- sqrt(((n1 - 1) * sd1^2 + (n2 - 1) * sd2^2) / (n1 + n2 - 2))
+  cohen_d <- (m1 - m2) / sd_pooled
+  
+  # Ausgabe der Ergebnisse
+  list(
+    variablen = list(numerisch = numvar, gruppe = binvar),
+    kennwerte_gruppen = group_stats,
+    t_test_details = t_res,
+    effektstaerke_d = as.numeric(cohen_d)
+  )
+}
+
+
+
 # ------------------------------------------------------
 # v. function for visualizing three categorical variables
 # ------------------------------------------------------
