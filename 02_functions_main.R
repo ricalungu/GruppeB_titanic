@@ -16,52 +16,61 @@ desc_metric <- function(x) {
   )
 }
 
+
+
 # 2) Deskriptive Statistik für kategoriale Variablen
 desc_categorical <- function(x) {
-  stopifnot(is.factor(x) || is.character(x))
+  x <- as.factor(x)
   
-  tab <- table(x, useNA = "ifany")
-  prop <- prop.table(tab)
+  freq <- table(x)
+  prop <- prop.table(freq)
   
   data.frame(
-    category = names(tab),
-    count = as.vector(tab),
-    proportion = round(as.vector(prop), 3)
+    category   = names(freq),
+    count      = as.numeric(freq),
+    proportion = round(as.numeric(prop), 3)
   )
 }
+
 
 # 3) Bivariat: kategorial x kategorial
 desc_cat_cat <- function(x, y) {
-  stopifnot((is.factor(x) || is.character(x)) &&
-            (is.factor(y) || is.character(y)))
-  
+  x <- as.factor(x)
+  y <- as.factor(y)
+
   tab <- table(x, y)
+
   list(
     counts = tab,
-    proportions = prop.table(tab, margin = 1)
+    row_prop = prop.table(tab, 1)
   )
 }
 
+
 # 4) Bivariat: metrisch x dichotom
 desc_metric_dicho <- function(metric, group) {
-  stopifnot(is.numeric(metric))
-  
-  aggregate(metric, by = list(group), 
-            FUN = function(x) c(
-              mean = mean(x, na.rm = TRUE),
-              sd   = sd(x, na.rm = TRUE)
-            ))
+  group <- as.factor(group)
+
+  aggregate(
+    metric,
+    by = list(group),
+    FUN = function(x)
+      c(mean = mean(x, na.rm = TRUE),
+        sd   = sd(x, na.rm = TRUE))
+  )
 }
 
+
 # 5) Visualisierung: 3 kategoriale Variablen
-plot_cat3 <- function(data, x, fill, facet) {
+plot_cat3 <- function(df, x, fill, facet) {
   library(ggplot2)
-  
-  ggplot(data, aes(x = .data[[x]], fill = .data[[fill]])) +
+
+  ggplot(df, aes(.data[[x]], fill = .data[[fill]])) +
     geom_bar(position = "dodge") +
     facet_wrap(~ .data[[facet]]) +
     theme_minimal()
 }
+
 
 
 
