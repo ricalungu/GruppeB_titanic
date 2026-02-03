@@ -1,5 +1,6 @@
 # include functions from file 02b_inner_functions.R
-source("02b_inner_functions.R")
+source("R/02b_inner_functions.R")
+
 
 
 # Title: Descriptive statistics for numeric variables
