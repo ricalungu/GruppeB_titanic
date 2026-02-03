@@ -143,7 +143,7 @@ bivar_cat_cat <- function(df, var1, var2) {
     zeilen_anteile = row_prop,
     spalten_anteile = col_prop,
     angewandter_test = test_used,
-    test_details = test-result, 
+    test_details = test_result, 
     cramers_v = cramersV
   )
 }
