@@ -12,11 +12,12 @@
 # @param output_path The file path to save the processed Titanic dataset.
 # @return A data frame containing the processed Titanic dataset.
 # @examples
-# titanic_processed <- preprocess_titanic("data/raw/titanic.csv", "data/processed/titanic_modified.csv")
+# preprocess_titanic("data/raw/titanic.csv", "data/processed/titanic_modified.csv")
+
 preprocess_titanic <- function(input_path, output_path) {
 
 #Read dataset
-df <- read.csv("data/raw/titanic.csv", stringsAsFactors = FALSE)
+df <- read.csv(input_path, stringsAsFactors = FALSE)
 
 #Check the structure and summary of the data
 str(df)
@@ -194,4 +195,8 @@ titanic_modified <- titanic_modified %>%
 titanic_modified <- titanic_modified %>% select(-c(PassengerId, Name, Cabin, Ticket))
 
 # save modified dataset in one file
-write.csv(titanic_modified, file = "data/processed/titanic_modified.csv")
+write.csv(titanic_modified, file = output_path)
+
+}
+
+preprocess_titanic("data/raw/titanic.csv", "data/processed/titanic_modified.csv")
