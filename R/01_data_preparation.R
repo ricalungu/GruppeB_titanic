@@ -46,6 +46,10 @@ df <- df %>%
     Survived = factor(Survived),
     Sex = factor(Sex),
     Embarked = factor(Embarked)
+  ) %>%
+  mutate(
+    Sex_label = factor( ifelse(Sex == "female", "Weiblich", "Männlich")),
+    Survived_label = factor(ifelse(Survived == 1, "Überlebt", "Gestorben"))
   )
 
 # Age-Imputation (Median je Title)
@@ -200,3 +204,4 @@ write.csv(titanic_modified, file = output_path)
 }
 
 preprocess_titanic("data/raw/titanic.csv", "data/processed/titanic_modified.csv")
+
