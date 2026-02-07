@@ -11,7 +11,7 @@ source("R/02b_inner_functions.R")
 #' @param df A data frame containing variable 'var'.
 #' @param var A string giving the name of the numeric variable.
 #'
-#' @return A numeric vector containing the following elements:
+#' @return A list containing the following elements:
 #'          \describe{
 #'            \item{mean}{Arithmetic mean (NA removed)}
 #'            \item{median}{Median (NA removed)}
@@ -33,7 +33,7 @@ describe_numeric <- function(df, var) {
   
   x <- df[[var]]
   
-  stats <- c(
+  stats <- list(
     mean   = mean(x, na.rm = TRUE),
     median = median(x, na.rm = TRUE),
     sd     = sd(x, na.rm = TRUE),
