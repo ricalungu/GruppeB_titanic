@@ -8,11 +8,11 @@
 #4 Recoding columns (e.g., Pclass as ordered factor)
 #5 Saving the processed dataset
 
-# @param input_path The file path to the raw Titanic dataset (CSV).
-# @param output_path The file path to save the processed Titanic dataset.
-# @return A data frame containing the processed Titanic dataset.
-# @examples
-# preprocess_titanic("data/raw/titanic.csv", "data/processed/titanic_modified.csv")
+#' @param input_path The file path to the raw Titanic dataset (CSV).
+#' @param output_path The file path to save the processed Titanic dataset.
+#' @return A data frame containing the processed Titanic dataset.
+#' @examples
+#' preprocess_titanic("data/raw/titanic.csv", "data/processed/titanic_modified.csv")
 
 preprocess_titanic <- function(input_path, output_path) {
 
@@ -70,8 +70,17 @@ titanic_modified <- df
 # check if column Pclass only contains numbers
 check_Pclass <- unique(titanic_modified$Pclass)
 
-# recode
-titanic_modified$Pclass <- ordered(titanic_modified$Pclass)
+# add column Pclass_label and recode Pclass, Pclass_label as ordered factor
+titanic_modified <- titanic_modified %>%
+  mutate(Pclass_label = case_when(
+           Pclass == 1 ~ "1. Klasse",
+           Pclass == 2 ~ "2. Klasse",
+           Pclass == 3 ~ "3. Klasse",
+           TRUE ~ NA
+         )
+         ) %>%
+  mutate(Pclass = ordered(Pclass),
+         Pclass_label = ordered(Pclass_label))
 
 ##############################################################################
 
