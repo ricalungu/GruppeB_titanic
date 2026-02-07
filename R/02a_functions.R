@@ -44,6 +44,8 @@ describe_numeric <- function(df, var) {
   return(stats)
 }
 
+# Return as a list
+ergebnis <- describe_numeric(titanic_data, "Fare")
 
 #' Title: Descriptive statistics for a categorical variable (2a ii.)
 #' Author: Sebastian
