@@ -62,19 +62,32 @@ desc_metric_dicho <- function(metric, group) {
 
 
 # 5) Visualisierung: 3 kategoriale Variablen
-plot_cat3 <- function(df, x, fill, facet) {
-  library(ggplot2)
+# Paket laden
+install.packages("ggplot2")
 
+library(ggplot2)
+
+# Titanic Daten laden
+titanic_data <- read.csv("data/processed/titanic_modified.csv")
+
+# Funktion plot_cat3 (deine Funktion)
+plot_cat3 <- function(df, x, fill, facet) {
   ggplot(df, aes(.data[[x]], fill = .data[[fill]])) +
     geom_bar(position = "dodge") +
     facet_wrap(~ .data[[facet]]) +
     theme_minimal()
 }
 
+# Plot erstellen
+plot1 <- plot_cat3(
+  titanic_data,
+  "Pclass",
+  "Survived",
+  "Sex"
+)
 
+# Plot anzeigen
+plot1
 
-
-
-
-
-
+# Plot speichern
+ggsave("plot_cat3.png", plot1)
