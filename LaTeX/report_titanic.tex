@@ -18,6 +18,8 @@
 \onehalfspacing
 \usepackage{listings}
 \usepackage{color}
+\usepackage[backend=biber,style=authoryear]{biblatex}
+\addbibresource{references.bib}
 
 % -------------------------
 % Titel
@@ -101,8 +103,9 @@ Dabei werden statistische Methoden sowie Visualisierungstechniken verwendet, um 
 Die Analyse erfolgt unter Verwendung selbst entwickelter Funktionen in der Programmiersprache R.
 
 % -------------------------
-\section{Datensatzbeschreibung}
+\section{Problemdarstellung}
 % -------------------------
+\subsection{Datensatz}
 
 Der verwendete Datensatz basiert auf historischen Passagierdaten der Titanic. 
 Jede Beobachtung entspricht einer einzelnen Person an Bord des Schiffes.
@@ -120,6 +123,16 @@ Die wichtigsten Variablen sind:
 
 Vor der Analyse wurde eine Datenbereinigung durchgeführt. Fehlende Werte wurden identifiziert und entsprechend behandelt. 
 Zusätzlich wurden Variablenformate angepasst, um eine konsistente Analyse zu gewährleisten.
+
+\subsection{Ziele der Analyse}
+
+Die Zielsetzung dieser Arbeit besteht nicht in der Entwicklung eines prädiktiven Modells, sondern in der explorativen Untersuchung der Datenstruktur. Konkret sollen folgende Fragestellungen adressiert werden:
+\begin{itemize}
+\item Wie verteilt sich der Überlebensstatus innerhalb der Stichprobe?
+\item Lassen sich Unterschiede in der Überlebenswahrscheinlichkeit zwischen verschiedenen Gruppen (z.,B. Geschlecht oder Ticketklasse) erkennen?
+\item Welche deskriptiven Zusammenhänge bestehen zwischen numerischen Variablen und dem Überlebensstatus?
+\end{itemize}
+Da es sich um eine explorative Analyse handelt, dienen die Ergebnisse der Hypothesengenerierung und erlauben keine kausalen Schlussfolgerungen.
 
 % -------------------------
 \section{Methodik}
@@ -142,10 +155,12 @@ Zur Visualisierung wurden Histogramme, Balkendiagramme und Boxplots verwendet.
 Diese ermöglichen eine intuitive Darstellung der Datenstruktur.
 
 % -------------------------
-\section{Deskriptive Analyse}
+\section{Statistische Auswertungen}
 % -------------------------
 
-\subsection{Überlebensrate}
+\subsection{Deskriptive Analyse}
+
+\subsubsection{Überlebensrate}
 
 Die Analyse der Überlebensrate stellt den Ausgangspunkt der Untersuchung dar. 
 Sie zeigt den Anteil der Passagiere, die das Unglück überlebt haben.
@@ -263,6 +278,7 @@ Da es sich um explorative Analysen handelt, erlauben die dargestellten Zusammenh
 
 Diese Arbeit zeigt, dass mehrere Faktoren in Zusammenhang mit der Überlebenswahrscheinlichkeit der Titanic-Passagiere stehen. 
 Besonders Geschlecht, Ticketklasse und Ticketpreis weisen deutliche Zusammenhänge mit dem Überlebensstatus auf.
+Die Verwendung selbst entwickelter Funktionen ermöglichte eine strukturierte und reproduzierbare Analyse der Daten. Zukünftige Untersuchungen könnten multivariate statistische Modelle oder maschinelle Lernverfahren einsetzen, um komplexere Zusammenhänge systematisch zu analysieren.
 
 Die Verwendung selbst entwickelter Funktionen ermöglichte eine strukturierte und reproduzierbare Analyse der Daten. Zukünftige Untersuchungen könnten multivariate statistische Modelle oder maschinelle Lernverfahren einsetzen, um komplexere Zusammenhänge systematisch zu analysieren.
 
@@ -297,6 +313,11 @@ Literatur und Formatierung & Sebastian Koriath \\ \hline
 \end{center}
 
 \vspace{1cm}
+
+
+
+
+\end{document}
 
 
 
