@@ -1,11 +1,28 @@
 # include functions from file 02b_inner_functions.R
-source("02b_inner_functions.R")
+source("R/02b_inner_functions.R")
 
 
-# Title: Descriptive statistics for numeric variables
-# Author: Meriam
-# Description:
-# Computes descriptive statistics for a numeric variable
+#' Title: Descriptive statistics for a numeric variable (2a i.)
+#' Author: Meriam
+#' Description: Computes the following descriptive statistics for a given 
+#'              numeric variable: mean, median, standard deviation, 
+#'              interquartile range, minimum, maximum.
+#'
+#' @param df A data frame containing variable 'var'.
+#' @param var A string giving the name of the numeric variable.
+#'
+#' @return A list containing the following elements:
+#'          \describe{
+#'            \item{mean}{Arithmetic mean (NA removed)}
+#'            \item{median}{Median (NA removed)}
+#'            \item{sd}{Standard deviation (NA removed)}
+#'            \item{iqr}{Interquartile range, computed using `safe_iqr()`}
+#'            \item{min}{Minimum (NA removed)}
+#'            \item{max}{Maximum (NA removed)}
+#'          }
+#' @example
+#' df <- data.frame(x = c(1, 2, 3, 10, NA))
+#' describe_numeric(df, "x")
 
 describe_numeric <- function(df, var) {
   
@@ -16,7 +33,7 @@ describe_numeric <- function(df, var) {
   
   x <- df[[var]]
   
-  stats <- c(
+  stats <- list(
     mean   = mean(x, na.rm = TRUE),
     median = median(x, na.rm = TRUE),
     sd     = sd(x, na.rm = TRUE),
@@ -24,19 +41,31 @@ describe_numeric <- function(df, var) {
     min    = min(x, na.rm = TRUE),
     max    = max(x, na.rm = TRUE)
   )
-  
   return(stats)
 }
 
+# Return as a list
+ergebnis <- describe_numeric(titanic_data, "Fare")
 
-# Titel: Funktionen
-# Autor: Sebastian
-# Beschreibung: Deskriptive Statistik fuer kategoriale Variablen ii)
-
-#' Deskriptive Statistik fuer eine kategoriale Variable
-#' @param df data.frame mit den Quelldaten
-#' @param var String: Name der kategorialen Variable
-#' @return list: Enthaelt Variable, Haeufigkeiten, Proportionen und Modus
+#' Title: Descriptive statistics for a categorical variable (2a ii.)
+#' Author: Sebastian
+#' Description: Converts values to factor and computes the following descriptive 
+#'              statistics for a given categorical variable: frequency for each 
+#'              category,proportion for each category, mode.
+#'
+#' @param df A data frame containing variable 'var'.
+#' @param var A string giving the name of the categorical variable.
+#'
+#' @return A list of class 'desc_cat' containing the following elements:
+#'          \describe{
+#'            \item{var}{variable name}
+#'            \item{frequencies}{frequency table including NA values}
+#'            \item{proportions}{proportions table including NA values}
+#'            \item{mode}{category with max. frequency}
+#'          }
+#' @example
+#' df <- data.frame(x = c("A", "A", "B", "C", "A"))
+#' descrip_categorical(df, "x")
 
 descrip_categorical <- function(df, var) {
   
@@ -74,14 +103,34 @@ descrip_categorical <- function(df, var) {
 }
 
 
-# Deskriptive bivariate Statistik fuer den Zusammenhang von zwei kategorialen Variablen iii)
+#' Title: Descriptive bivariate statistics for two categorical variables (2a iii.)
+#' Author: Sebastian
+#' Description: Converts values to factors and computes the following statistics 
+#'              for two given categorical variable: contingency table 
+#'              (and associated row-wise and column-wise proportions), 
+#'              Cramers V (measure of association), Chi-squared and 
+#'              chi-squared test statistics, fisher test statistics or no test
+#'              statistics (depending on input).
+#'              
+#' @param df A data frame containing variables 'var1', 'var2'.
+#' @param var1 A string giving the name of the first categorical variable (rows).
+#' @param var2 A string giving the name of the second categorical variable (columns).
+#' 
+#' @return A list containing the following elements:
+#'          \describe{
+#'            \item{tabelle}{contingency table including NA values}
+#'            \item{zeilen_anteile}{row-wise proportions}
+#'            \item{spalten_anteile}{column-wise proportions}
+#'            \item{angewandter_test}{character string indicating which test was used}
+#'            \item{test_details}{test results}
+#'            \item{cramers_v}{Cramers V (NA if not computable)}
+#'          }
+#' @example
+#' df <- data.frame(
+#'   Sex = c("m", "w", "w", "m", "m"),
+#'   Survived    = c("1", "0", "1", "1", "0"))
+#' bivar_cat_cat(df, "Sex", "Survived")
 
-#' @param df Ein data.frame, der die Rohdaten enthaelt
-#' @param var1 String. Name der ersten kategorialen Variable (Zeilen)
-#' @param var2 String. Name der zweiten kategorialen Variable (Spalten)
-#' @return Eine Liste mit der Kreuztabelle, den relativen Haeufigkeiten, 
-#' dem Testergebnis und dem Koeffizienten Cramer's V.
-#' @export
 bivar_cat_cat <- function(df, var1, var2) {
   
   # Valiedirung: Daten auf existenz pruefen
@@ -110,12 +159,12 @@ bivar_cat_cat <- function(df, var1, var2) {
     
     # Voraussetzungen fuer Chi-Quadrat-Test pruefen (Erwartungswert >= 5)
     if(any(expected < 5)) {
-      # Auf Fishers Test ausweichen wei 2x2 Tabellen
+      # Auf Fishers Test ausweichen bei 2x2 Tabellen
       if (all(dim(tbl) == c(2, 2))) {
         test_used <- "Fishers Test"
         test_result <- fisher.test(tbl)
       } else {
-        test_used <- "Chi-Quadrat"
+        test_used <- "Pearson Chi-Quadrat-Test"
         test_result <- chi
       }
     } else {
@@ -143,22 +192,37 @@ bivar_cat_cat <- function(df, var1, var2) {
     zeilen_anteile = row_prop,
     spalten_anteile = col_prop,
     angewandter_test = test_used,
-    test_details = test-result, 
+    test_details = test_result, 
     cramers_v = cramersV
   )
 }
 
 
-# Deskriptive Bivariate Statistik fuer eine numerische und eine dichotome Variable iv)
+#' Title: Descriptive bivariate statistics for a numeric and a dichotomous variable (2a iv.)
+#' Author: Sebastian
+#' Description: Computes descriptive statistics (number of observations, mean, 
+#'              standard deviation) for a numeric variable across two groups 
+#'              defined by a given dichotomous variable, performs Welch's t-test 
+#'              and computes Cohen's d.
+#'
+#' @param df A data frame containing 'numvar' and 'binvar'.
+#' @param numvar A string giving the name of the numeric variable.
+#' @param binvar A string giving the name of the dichotomous variable.
+#'
+#' @return A list containing the following elements:
+#'          \describe{
+#'            \item{variablen}{names of given variables}
+#'            \item{kennwerte_gruppen}{descriptive statistics for each of the 
+#'                  two groups from 'binvar'}
+#'            \item{t_test_details}{results t-tests}
+#'            \item{effektstaerke_d}{effect size cohen's d}
+#'          }
+#' @example
+#' df <- data.frame(
+#'   Age = c(10, 12, 60, 20, 22, 53),
+#'   Survived = c(1, 1, 1, 0, 0, 0))
+#' bivar_num_bin(df, "Age", "Survived")
 
-
-#' Berechnung der Gruppenkennwerte, Durchfuehrung eines Welch-t Test, Ermittlung der Effektstaerke Cohen´s d
-#' @param df data.frame: Der Datensatz
-#' @param numvar String: Name der numerischen Variable (z. B. "Fare").
-#' @param binvar String: Name der dichotomen Gruppenvariable (z. B. "Survived")
-#' @return Eine Liste mit Deskriptivstatistiken pro Gruppe, t-Test-Ergebnissen und der Effektstaerke Cohen's d
-
-#' export
 bivar_num_bin <- function(df, numvar, binvar) {
   
   # Validierung: Existenz und Struktur pruefen
@@ -213,21 +277,18 @@ bivar_num_bin <- function(df, numvar, binvar) {
 }
 
 
-
-# ------------------------------------------------------
-# v. function for visualizing three categorical variables
-# ------------------------------------------------------
+#' Title: Visualizing three categorical variables (2a v.)
 #' Author: Rica
-#' Name:  plot_3_cat_var
 #' Description: This function can be used for visualizing three categorical 
 #'              variables from a given dataframe. One can choose between a 
-#'              grouped barplot, a stacked barplot and a heatmap.  
+#'              grouped barplot, a stacked barplot and a heatmap (each using facets).  
 #' 
-#' @param   df      A data frame containing the variables given in 'vars'.
-#' @param   vars    A character vector containing three categorical variables from df.
-#' @param   type    A character string specifying the plot type. 
-#'                  Available types are facet_bar_grouped, facet_bar_stacked, facet_heatmap. 
-#' @return  The output is a ggplot visualizing the variables given in 'vars'.
+#' @param df A data frame containing the variables given in 'vars'.
+#' @param vars A character vector containing three categorical variables from df.
+#' @param type A character string specifying the plot type. 
+#'             Available types are facet_bar_grouped, facet_bar_stacked, facet_heatmap. 
+#'             
+#' @return The output is a ggplot visualizing the variables given in 'vars'.
 #' 
 #' @details As ggplot is used for visualizing, you can easily modify the plot 
 #'          by adding further specifications using '+' (e.g. adding a title, a theme, ...).
@@ -338,13 +399,4 @@ plot_3_cat_var <- function(df,
         )
       }
 }
-
-# ------------------------------------------------------
-
-
-
-
-
-
-
 

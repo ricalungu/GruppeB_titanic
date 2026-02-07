@@ -1,17 +1,29 @@
 # Title: Titanic Preprocessing
 # Authors: Meriam & Rica
-# Description: 
-#  - read dataset titanic.csv
-#  - create new columns title and modify existing columns
-#  - remove columns which are not needed for further analysis
-#  - save adjusted dataset as titanic_modified.csv
 
+#This function performs data preprocessing on the Titanic dataset , it includes:
+#1 Reading the dataset
+#2 Creating new columns (e.g., Title, side_ship, deck)
+#3 Handling missing values in Age
+#4 Recoding columns (e.g., Pclass as ordered factor)
+#5 Saving the processed dataset
 
-df <- read.csv("data/raw/titanic.csv", stringsAsFactors = FALSE)
+#' @param input_path The file path to the raw Titanic dataset (CSV).
+#' @param output_path The file path to save the processed Titanic dataset.
+#' @return A data frame containing the processed Titanic dataset.
+#' @examples
+#' preprocess_titanic("data/raw/titanic.csv", "data/processed/titanic_modified.csv")
+
+preprocess_titanic <- function(input_path, output_path) {
+
+#Read dataset
+df <- read.csv(input_path, stringsAsFactors = FALSE)
+
+#Check the structure and summary of the data
 str(df)
 summary(df)
 
-## install required packages if necessary 
+# install required packages if necessary 
 #install.packages(c("tidyr","dplyr","stringr"))
 
 library("tidyr")
@@ -34,6 +46,10 @@ df <- df %>%
     Survived = factor(Survived),
     Sex = factor(Sex),
     Embarked = factor(Embarked)
+  ) %>%
+  mutate(
+    Sex_label = factor( ifelse(Sex == "female", "Weiblich", "Männlich")),
+    Survived_label = factor(ifelse(Survived == 1, "Überlebt", "Gestorben"))
   )
 
 # Age-Imputation (Median je Title)
@@ -54,8 +70,17 @@ titanic_modified <- df
 # check if column Pclass only contains numbers
 check_Pclass <- unique(titanic_modified$Pclass)
 
-# recode
-titanic_modified$Pclass <- ordered(titanic_modified$Pclass)
+# add column Pclass_label and recode Pclass, Pclass_label as ordered factor
+titanic_modified <- titanic_modified %>%
+  mutate(Pclass_label = case_when(
+           Pclass == 1 ~ "1. Klasse",
+           Pclass == 2 ~ "2. Klasse",
+           Pclass == 3 ~ "3. Klasse",
+           TRUE ~ NA
+         )
+         ) %>%
+  mutate(Pclass = ordered(Pclass),
+         Pclass_label = ordered(Pclass_label))
 
 ##############################################################################
 
@@ -73,7 +98,7 @@ titanic_modified$Cabin[titanic_modified$Cabin == ""] <- NA
 titanic_modified <- titanic_modified %>%
   separate(Cabin, into = c("cabin_1", "cabin_2", "cabin_3", "cabin_4"), sep = " ", remove = F)
 
-### create new column side_ship
+## create new column side_ship
 
 # extract number from cabin number
 # create column cabin_1_side (and columns cabin_2_side, cabin_3_side, cabin_4_side respectively)
@@ -177,10 +202,15 @@ titanic_modified <- titanic_modified %>%
   # remove unnecessary columns
   select(-c(cabin_1_deck,cabin_2_deck, cabin_3_deck, cabin_4_deck,cabin_1,cabin_2,cabin_3,cabin_4))
 
-##############################################################################
+########################################################
 
 # remove columns which are not needed for following analysis
 titanic_modified <- titanic_modified %>% select(-c(PassengerId, Name, Cabin, Ticket))
 
 # save modified dataset in one file
-write.csv(titanic_modified, file = "data/processed/titanic_modified.csv")
+write.csv(titanic_modified, file = output_path)
+
+}
+
+preprocess_titanic("data/raw/titanic.csv", "data/processed/titanic_modified.csv")
+
