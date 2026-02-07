@@ -186,5 +186,5 @@ p <- ggplot(titanic_data, aes(Survived_label, Fare, fill = Survived_label)) +
 
 print(p)
 
-# 4.4 Export
+# Export
 ggsave("R/visualizations/fare_vs_survival.png", p, width = 12, height = 8, dpi = 300)
