@@ -16,15 +16,8 @@
 \usepackage{setspace}
 \geometry{margin=2.5cm}
 \onehalfspacing
-\usepackage[backend=biber,style=authoryear]{biblatex}
-\addbibresource{references.bib}
-
-
-
-
-
-
-\begin{document}
+\usepackage{listings}
+\usepackage{color}
 
 % -------------------------
 % Titel
@@ -74,7 +67,20 @@ Steffen Maletz
 
 \end{center}
 
+
+
+
+
+
 \end{titlepage}
+
+
+
+
+
+\begin{document}
+
+
 
 \tableofcontents
 \newpage
@@ -95,9 +101,9 @@ Dabei werden statistische Methoden sowie Visualisierungstechniken verwendet, um 
 Die Analyse erfolgt unter Verwendung selbst entwickelter Funktionen in der Programmiersprache R.
 
 % -------------------------
-\section{Problemstellung}
+\section{Datensatzbeschreibung}
 % -------------------------
-\subsection{Datensatz}
+
 Der verwendete Datensatz basiert auf historischen Passagierdaten der Titanic. 
 Jede Beobachtung entspricht einer einzelnen Person an Bord des Schiffes.
 
@@ -115,18 +121,8 @@ Die wichtigsten Variablen sind:
 Vor der Analyse wurde eine Datenbereinigung durchgeführt. Fehlende Werte wurden identifiziert und entsprechend behandelt. 
 Zusätzlich wurden Variablenformate angepasst, um eine konsistente Analyse zu gewährleisten.
 
-\subsection{Ziele der Analyse} 
-
-Die Zielsetzung dieser Arbeit besteht nicht in der Entwicklung eines prädiktiven Modells, sondern in der explorativen Untersuchung der Datenstruktur. Konkret sollen folgende Fragestellungen adressiert werden:
-\begin{itemize}
-\item Wie verteilt sich der Überlebensstatus innerhalb der Stichprobe?
-\item Lassen sich Unterschiede in der Überlebenswahrscheinlichkeit zwischen verschiedenen Gruppen (z.,B. Geschlecht oder Ticketklasse) erkennen?
-\item Welche deskriptiven Zusammenhänge bestehen zwischen numerischen Variablen und dem Überlebensstatus?
-\end{itemize}
-Da es sich um eine explorative Analyse handelt, dienen die Ergebnisse der Hypothesengenerierung und erlauben keine kausalen Schlussfolgerungen.
-
 % -------------------------
-\section{Statistische Methoden}
+\section{Methodik}
 % -------------------------
 
 Die Analyse wurde mit der Programmiersprache R durchgeführt. 
@@ -146,18 +142,17 @@ Zur Visualisierung wurden Histogramme, Balkendiagramme und Boxplots verwendet.
 Diese ermöglichen eine intuitive Darstellung der Datenstruktur.
 
 % -------------------------
-\section{Statistische Auswertung}
+\section{Deskriptive Analyse}
 % -------------------------
 
-\subsection{Deskriptive Analyse}
-
-\subsubsection{Überlebensrate}
+\subsection{Überlebensrate}
 
 Die Analyse der Überlebensrate stellt den Ausgangspunkt der Untersuchung dar. 
 Sie zeigt den Anteil der Passagiere, die das Unglück überlebt haben.
 
 \begin{table}[H]
     \centering
+    \caption{Überlebensrate nach Geschlecht}
     \begin{tabular}{lcc}
         \toprule
         & \multicolumn{2}{c}{Anzahl Passagiere} \\
@@ -168,21 +163,20 @@ Sie zeigt den Anteil der Passagiere, die das Unglück überlebt haben.
         Überlebt       & 468 & 109 \\
         \bottomrule
     \end{tabular}
-    \caption{Überlebensrate nach Geschlecht}
 \end{table}
 
 Die Ergebnisse zeigen, dass ein erheblicher Teil der Passagiere das Unglück nicht überlebt hat. 
 Dies verdeutlicht die dramatischen Auswirkungen der Katastrophe.
 
 % -------------------------
-\subsubsection{Altersverteilung}
+\subsection{Altersverteilung}
 % -------------------------
 
 Die Altersstruktur der Passagiere wurde mithilfe eines Histogramms analysiert.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{age_histogram_titanic.png}
+\includegraphics[width=0.8\textwidth]{Altersverteilung_T.png}
 \caption{Altersverteilung der Passagiere}
 \end{figure}
 
@@ -190,40 +184,58 @@ Die Altersstruktur der Passagiere wurde mithilfe eines Histogramms analysiert.
 Die Verteilung zeigt, dass die Mehrheit der Passagiere im jungen Erwachsenenalter lag. 
 Extremwerte sind ebenfalls vorhanden und können auf einzelne Sonderfälle hinweisen.
 
+% -------------------------
+\section{Analyse von Einflussfaktoren}
+% -------------------------
 
-\subsection{Analyse von Einflussfaktoren}
-
-\subsubsection{Geschlecht und Überleben}
+\subsection{Geschlecht und Überleben}
 
 Die Analyse zeigt deutliche Unterschiede zwischen männlichen und weiblichen Passagieren.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{survival_by_sex_grouped.png}
+\includegraphics[width=0.9\textwidth]{Überleben_nach_Geschlecht.png}
 \caption{Überlebensrate nach Geschlecht}
 \end{figure}
 
 Während nur ein vergleichsweise geringer Anteil männlicher Passagiere überlebte, lag die Überlebensrate weiblicher Passagiere deutlich höher. 
 Dieses Ergebnis stimmt mit historischen Berichten über Evakuierungsprioritäten überein.
 
-\subsubsection{Ticketklasse}
+\newpage
+
+% -------------------------
+\subsection{Ticketklasse}
 
 Die Ticketklasse stellt einen wichtigen sozioökonomischen Indikator dar.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{survival_class_sex.png}
+\includegraphics[width=0.9\textwidth]{Überleben_nach_Passagierklasse.png}
 \caption{Überlebensrate nach Ticketklasse}
 \end{figure}
 
 Passagiere höherer Klassen hatten bessere Überlebenschancen. 
 Dies kann durch räumliche Nähe zu Rettungsbooten sowie organisatorische Vorteile erklärt werden.
 
-\subsubsection{Ticketpreis}
+% -------------------------
+\subsection{Zusammenspiel von Ticketklasse, Geschlecht und Überleben}
+
+Zur erweiterten Analyse wurde zusätzlich der Zusammenhang zwischen Ticketklasse, Geschlecht und Überlebensstatus untersucht. Hierfür wurde eine selbst entwickelte Funktion zur Visualisierung von drei kategorialen Variablen eingesetzt.
+
+Abbildung \ref{fig:dreivariablen} zeigt die Überlebensraten in Abhängigkeit von Ticketklasse und Geschlecht. Es wird deutlich, dass weibliche Passagiere in allen Klassen höhere Überlebenswahrscheinlichkeiten aufweisen. Besonders ausgeprägt ist dieser Effekt in der ersten und zweiten Klasse.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{fare_vs_survival.png}
+\includegraphics[width=0.8\textwidth]{plot_cat3.png}
+\caption{Überlebensrate nach Ticketklasse und Geschlecht}
+\label{fig:dreivariablen}
+\end{figure}
+
+\subsection{Ticketpreis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{Überlebensrate_nach_Ticketpreis.png}
 \caption{Ticketpreis in Abhängigkeit vom Überlebensstatus}
 \end{figure}
 
@@ -231,11 +243,13 @@ Es zeigt sich ein positiver Zusammenhang zwischen Ticketpreis und Überlebenswah
 Dies deutet auf einen Zusammenhang zwischen sozialem Status und Überlebenswahrscheinlichkeit hin.
 
 % -------------------------
-\section{Zusammenfassung}
+\section{Diskussion}
 % -------------------------
 
 Die Ergebnisse der Analyse verdeutlichen den Einfluss sozialer und demographischer Faktoren auf die Überlebenswahrscheinlichkeit. 
-Geschlecht und Ticketklasse zeigen die stärksten Zusammenhänge mit dem Überlebensstatus.Darüber hinaus deutet der Zusammenhang zwischen Ticketpreis und Überleben auf soziale Ungleichheiten hin. 
+Geschlecht und Ticketklasse zeigen die stärksten Zusammenhänge mit dem Überlebensstatus.
+
+Darüber hinaus deutet der Zusammenhang zwischen Ticketpreis und Überleben auf soziale Ungleichheiten hin. 
 Passagiere mit höherem sozioökonomischem Status hatten tendenziell bessere Chancen, die Katastrophe zu überleben.
 
 Trotz der aufschlussreichen Ergebnisse weist die Analyse Einschränkungen auf. 
@@ -243,29 +257,40 @@ Fehlende Werte sowie mögliche Verzerrungen im Datensatz können die Interpretat
 Mögliche Wechselwirkungen zwischen Variablen wurden nicht modelliert, sodass sich die Ergebnisse auf bivariate Zusammenhänge beschränken.
 Da es sich um explorative Analysen handelt, erlauben die dargestellten Zusammenhänge keine kausalen Schlussfolgerungen, sondern zeigen ausschließlich statistische Assoziationen.
 
+% -------------------------
+\section{Fazit}
+% -------------------------
+
 Diese Arbeit zeigt, dass mehrere Faktoren in Zusammenhang mit der Überlebenswahrscheinlichkeit der Titanic-Passagiere stehen. 
-Besonders Geschlecht, Ticketklasse und Ticketpreis weisen deutliche Zusammenhänge mit dem Überlebensstatus auf.Die Verwendung selbst entwickelter Funktionen ermöglichte eine strukturierte und reproduzierbare Analyse der Daten. Zukünftige Untersuchungen könnten multivariate statistische Modelle oder maschinelle Lernverfahren einsetzen, um komplexere Zusammenhänge systematisch zu analysieren.
+Besonders Geschlecht, Ticketklasse und Ticketpreis weisen deutliche Zusammenhänge mit dem Überlebensstatus auf.
 
-\nocite{titanic_datensatz}
-\nocite{wickham2016ggplot2}
-\newpage
-\printbibliography
+Die Verwendung selbst entwickelter Funktionen ermöglichte eine strukturierte und reproduzierbare Analyse der Daten. Zukünftige Untersuchungen könnten multivariate statistische Modelle oder maschinelle Lernverfahren einsetzen, um komplexere Zusammenhänge systematisch zu analysieren.
 
+% -------------------------
+\section{Literatur}
+% -------------------------
 
+\begin{itemize}
+\item Kaggle Titanic Datensatz: \url{https://www.kaggle.com/c/titanic}
+\item Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer.
+\end{itemize}
+%---------------------------------
 \newpage
 \section*{Aufgabenverteilung}
 
 \begin{center}
-\begin{tabular}{|p{6cm}|p{6cm}|}
+\begin{tabular}{|p{8cm}|p{4cm}|}
 \hline
 \textbf{Aufgabe / Abschnitt} & \textbf{Verfasser} \\
 \hline
+
 Einleitung & Adem Doggaz \\ \hline
 Datensatzbeschreibung & Sebastian Koriath \\ \hline
 Methodik & Adem Doggaz \\ \hline
 Deskriptive Analyse & Sebastian Koriath \\ \hline
 Analyse von Einflussfaktoren & Adem Doggaz \\ \hline
-Diskussion & Sebastian Koriath, Adem Doggaz \\ \hline
+Diskussion & Sebastian Koriath \\ \hline
+Fazit & Adem Doggaz \\ \hline
 Literatur und Formatierung & Sebastian Koriath \\ \hline
 
 \end{tabular}
@@ -274,9 +299,6 @@ Literatur und Formatierung & Sebastian Koriath \\ \hline
 \vspace{1cm}
 
 
-
-
-\end{document}
 
 
 \end{document}
